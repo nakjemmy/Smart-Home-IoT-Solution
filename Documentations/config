@@ -1,0 +1,53 @@
+object: Light (Relay), Air Conditioner(Relay, IR-Emitter, IR-Receiver, DHT11), Switches (Relay)
+
+/**
+	IN THE CASE OF LARGE NUMBER OF OBJECTS, A SEARCH FUNCTIONALITY MAY BE IMPLEMENTED
+*/ 
+
+
+microprocessor: PI -> (Relay, IR-Emitter, IR-Receiver, DHT11) -> (Light, Air Conditioner, Switches)
+
+
+response cycle {
+	1. login {
+		* submit credentials
+		* server validates credentials and returns error or home page
+		* [home, rooms, general settings, schedules, aboutus]: { 	
+			home: is the dashboard with general statistics, 
+			rooms: is where you have a list of your room(s) currently configured on the system,
+			general settings: where you can do general configurations such as changing password, mobile number and others,
+			schedules: choose a room and schedule an action on an object,
+			aboutus: info about developers
+		},
+		* rooms: {
+			* all available rooms are displayed by requesting only the webserver
+			* on entering a specific room: {
+				* request is sent to webserver from the client
+				* webserver requests for the current state of the room from the microprocessor
+				* the microprocessor returns a response of the current state of the room to the webserver
+				* the webserver persists the data in the DB and sends the updated data to the client
+			}
+			* on pressing/clicking an object {
+				* use id of object to get its specific configurations(state: on/off/temp) from the DB.
+				* ACTION 1: client can update paramenters and submit: {
+					* send writes update temporarily
+					* webserver sends update to the microprocessor of the specific device
+					* the microprocessor tries effecting the action and sends a response(success/error) to the webserver
+					* webserver receives response from microprocessor: {
+						* if response is a success, webserver persists the temporary update and forwards a success response to the client
+						* else the temporary update will be discarded and an error message will be sent to the client
+					}
+				}
+			}
+		},
+		schedules: {
+			* user navigates to schedules page
+			* select a room from a list
+			* the list of the objects are displayed
+			* ui of the scheduler will be implemented from the normal standard (start/end/repeat/receive_notification)
+			* client submits schedule
+			* webserver receives, validates and persist schedule
+			* all schedules will implement ACTION 1 when they are due
+		}
+	}
+}
