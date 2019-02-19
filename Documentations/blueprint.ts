@@ -1,6 +1,7 @@
 class Device {
 	id: number;
 	name: string;
+	type: string; //actuator|receptor
 	description: string;
 }
 
